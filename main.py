@@ -1,5 +1,21 @@
 
 import re
+from collections import UserDict
+
+class AddressBool(UserDict):
+    pass
+
+class Record:
+    pass
+
+class Field:
+    pass
+
+class Name:
+    pass
+
+class Phone:
+    pass
 
 contacts = {}
 
