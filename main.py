@@ -2,7 +2,7 @@
 import re
 from collections import UserDict
 
-class AddressBool(UserDict):
+class AddressBook(UserDict):
     pass
 
 class Record:
