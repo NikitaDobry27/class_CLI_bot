@@ -2,22 +2,77 @@
 import re
 from collections import UserDict
 
-class AddressBook(UserDict):
-    pass
-
-class Record:
-    pass
 
 class Field:
-    pass
+    def __init__(self, value):
+        self.value = value
 
-class Name:
-    pass
+    def __str__(self) -> str:
+        return str(self.value)
 
-class Phone:
-    pass
+class Name(Field):
+    def __init__(self, name):
+        self.value = name
 
-contacts = {}
+    def __str__(self):
+        return self.value
+
+class Phone(Field):
+    def __init__(self, value):
+        super().__init__(value)
+
+    def formatted_phone(self):
+        return self.value
+
+class Record:
+    def __init__(self, name, phones=None):
+        self.name = Name(name)
+        self.phones = []
+        if phones:
+            for phone in phones:
+                self.add_phone(phone)
+
+    def add_phone(self, phone):
+        self.phones.append(phone)
+        
+        
+    def remove_phone(self, phone):
+        self.phones.remove(phone)
+        
+        
+    def edit_phone(self, old_phone, new_phone):
+        if old_phone in self.phones:
+            index = self.phones.index(old_phone)
+            self.phones[index] = new_phone
+        
+    def get_phones(self):
+        return self.phones
+    
+    def clear_phones(self):
+        self.phones.clear()
+
+    def __str__(self) -> str:
+        phones_str = ', '.join([str(phone) for phone in self.phones])
+        return f"{self.name}: {phones_str}"
+                
+
+class AddressBook(UserDict):
+    def __init__(self):
+        super().__init__()
+        
+    def add_record(self, record):
+        self.data[record.name.value] = record
+        
+        
+    def find_records(self, query):
+        result = []
+        for name, record in self.data.items():
+            if str(query).lower() in str(name).lower():
+                result.append(record)
+        return result
+
+
+contacts = AddressBook()
 
 def input_validation(func):
     def wrapper(*args):
@@ -55,7 +110,6 @@ def unknown_command(*args):
 def hello(*args):
     return '\nHi! How can I help you\n'
 
-
 @input_validation
 def add_contact(*args):
     lst = args[0]
@@ -65,8 +119,11 @@ def add_contact(*args):
     if len(lst) < 2:
         raise IndexError
     if len(phone) > 15 or len(phone) < 9:
-        return f'\n{phone} is not valid\n'
-    contacts[name] = phone
+        return f'\n{phone} is not valid phone number\n'
+    name_obj = Name(name)
+    record = Record(name_obj)
+    record.add_phone(Phone(phone))
+    contacts.add_record(record)
    
     return f'\nContact {name.capitalize()} was successfully added\n'
 
@@ -77,27 +134,45 @@ def change(*args):
     name = lst[0]
     phone = lst[1]
 
-    if name in contacts.keys():
-        contacts[name] = phone
-   
+    if len(lst) < 2:
+        raise IndexError
+    if len(phone) > 15 or len(phone) < 9:
+        return f'\n{phone} is not valid phone number\n'
+
+    records = contacts.find_records(name)
+
+    if records:
+        for record in records:
+            record.clear_phones()
+            record.add_phone(Phone(phone))
+
         return f'\nPhone number for contact {name.capitalize()} was successfully changed\n'
     else:
         raise KeyError
+
 
 
 @input_validation
 def phone(*args):
     lst = args[0]
     if not lst:
-        return '\nPlease provide "phone" and contact name\n' 
+        raise IndexError
     if len(lst) > 1:
         raise ValueError
     name = lst[0]
 
-    if name in contacts.keys():
-        return f'\nPhone number for contact {name.capitalize()} is {contacts[name]}\n'
+    records = contacts.find_records(name)
+    if not records:
+        raise KeyError
+    
+    result = ''
+    for record in records:
+        phones = record.get_phones()
+        result += f'\nPhone number(s) for contact {str(record.name.value).capitalize()}: '
+        for phone in phones:
+            result += f'{phone}\n'
+    return result
 
-    raise KeyError
 
 @input_validation
 def remove_contact(*args):
@@ -110,19 +185,23 @@ def remove_contact(*args):
         raise ValueError
     name = lst[0]
 
-    if name in contacts.keys():
-        contacts.pop(name)
-        
-        return f'\n{name.capitalize()} was successfully removed from your contacts\n'
+    records = contacts.find_records(name)
 
-    raise KeyError
+    if records:
+        for record in records:
+            contacts.data.pop(record.name.value)
+    else:
+        raise KeyError
+    return f'\nContact {str(name).capitalize()} was successfully removed\n'
 
 def show_all(*args):
     if not contacts:
         return '\nYour contacts list is empty\n'
     result = ''
-    for k, v in contacts.items():
-        result += f'\n{k.capitalize()}: {v}\n'
+    for record in contacts.values():
+        name = str(record.name.value).capitalize()
+        phones = ', '.join(str(phone) for phone in record.get_phones())
+        result += f'\n{name}: {phones}\n'
     return result
 
 
@@ -139,14 +218,19 @@ COMMANDS = {
 def main():
     print(hello())
     while True:
+        
         user_input = input('Type your query >>> ').lower()
-
+            
         if user_input in ['close', '.', 'bye', 'exit']:
-            print('See you!')
+            print('\nSee you!')
             break
-
-        command, data = input_formatter(user_input)
-
+        
+        try:
+            command, data = input_formatter(user_input)
+        except IndexError:
+            print('\nPlease provide command and data\n')
+            continue
+            
         call = command_handler(command)
 
         print(call(data))
