@@ -32,10 +32,6 @@ class Record:
     def add_phone(self, phone):
         self.phones.append(phone)
         
-        
-    def remove_phone(self, phone):
-        self.phones.remove(phone)
-        
     def get_phones(self):
         return self.phones
     
