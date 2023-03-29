@@ -21,9 +21,6 @@ class Phone(Field):
     def __init__(self, value):
         super().__init__(value)
 
-    def formatted_phone(self):
-        return self.value
-
 class Record:
     def __init__(self, name, phones=None):
         self.name = Name(name)
@@ -38,12 +35,6 @@ class Record:
         
     def remove_phone(self, phone):
         self.phones.remove(phone)
-        
-        
-    def edit_phone(self, old_phone, new_phone):
-        if old_phone in self.phones:
-            index = self.phones.index(old_phone)
-            self.phones[index] = new_phone
         
     def get_phones(self):
         return self.phones
