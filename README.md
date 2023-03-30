@@ -4,8 +4,6 @@ This program is a simple command-line interface that allows users to manage thei
 
 ## Functions
 
-- `load_contacts()`: loads the contacts from the JSON file
-- `save_contacts(contacts)`: saves the contacts to the JSON file
 - `input_validation(func)`: a decorator function that validates user input
 - `input_formatter(str)`: a function that formats user input
 - `command_handler(command)`: a function that handles user commands
