@@ -1,6 +1,6 @@
 # Contacts Management System
 
-This program is a simple command-line interface that allows users to manage their contacts. The program stores the contacts in a JSON file called contacts.json.
+This program is a simple command-line interface that allows users to manage their contacts. The program stores the contacts in a dictionary.
 
 ## Functions
 
