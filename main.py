@@ -11,15 +11,10 @@ class Field:
         return str(self.value)
 
 class Name(Field):
-    def __init__(self, name):
-        self.value = name
-
-    def __str__(self):
-        return self.value
+    pass
 
 class Phone(Field):
-    def __init__(self, value):
-        super().__init__(value)
+    pass
 
 class Record:
     def __init__(self, name, phones=None):
@@ -32,9 +27,6 @@ class Record:
     def add_phone(self, phone):
         self.phones.append(phone)
         
-    def get_phones(self):
-        return self.phones
-    
     def clear_phones(self):
         self.phones.clear()
 
@@ -44,8 +36,6 @@ class Record:
                 
 
 class AddressBook(UserDict):
-    def __init__(self):
-        super().__init__()
         
     def add_record(self, record):
         self.data[record.name.value] = record
@@ -154,7 +144,7 @@ def phone(*args):
     
     result = ''
     for record in records:
-        phones = record.get_phones()
+        phones = record.phones
         result += f'\nPhone number(s) for contact {str(record.name.value).capitalize()}: '
         for phone in phones:
             result += f'{phone}\n'
@@ -187,7 +177,7 @@ def show_all(*args):
     result = ''
     for record in contacts.values():
         name = str(record.name.value).capitalize()
-        phones = ', '.join(str(phone) for phone in record.get_phones())
+        phones = ', '.join(str(phone) for phone in record.phones)
         result += f'\n{name}: {phones}\n'
     return result
 
